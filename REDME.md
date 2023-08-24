@@ -6,4 +6,7 @@
 # Actividad 01 - Programas hechos en clase
 - p01-hola-mundo
 - p02-paga-trabajador
-- p02-venta-pizza
+- p03-venta-pizza
+- p04-procesa-calificaciones
+- p05-tabla-de-conversion
+- p06-factorial-numeros
