@@ -32,3 +32,6 @@
 
 ## Tarea 2
 - p16-repaso-poo
+
+## Examen Parcial 1
+- p17-primer-examen-parcial
