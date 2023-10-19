@@ -48,3 +48,6 @@
 ## Actividad 08
 - p23-BlazorApp
 - p24-TodoList
+
+## Actividad 09
+- p25-simple-crud
