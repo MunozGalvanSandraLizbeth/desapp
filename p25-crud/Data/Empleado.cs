@@ -5,9 +5,9 @@ public class Empleado {
     public int Id {get; set;}
     [Required, MinLength(3), MaxLength(35)]
     public string Nombre {get; set;}
-    [RegularExpression(@"[ña-z]{3,4}[0-9]{6}[0-9a-z]{3}$")]
+    [RegularExpression(@"[ÑA-Z]{3,4}[0-9]{6}[0-9A-Z]{3}$")]
     public string RFC {get; set;}
-    [Range(18,35)]
+    [Range(18,100)]
     public int Edad {get; set;}
     public string Genero {get; set;}
     [EmailAddress]

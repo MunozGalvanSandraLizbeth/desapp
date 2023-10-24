@@ -51,3 +51,6 @@
 
 ## Actividad 09
 - p25-simple-crud
+
+## Tarea 3
+- p26-crud-jugador
