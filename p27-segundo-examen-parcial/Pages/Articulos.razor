@@ -1,0 +1,64 @@
+@page "/articulos"
+@inject ArticuloServicio articuloServicio
+@inject IJSRuntime jsRuntime
+
+<h3>Articulos</h3>
+
+<NavLink class="nav-link" href="articulo/agregar">
+    <span class="oi oi-plus" aria-hidden="true">Agregar Articulo</span>
+</NavLink>
+
+<div class="row">
+    <div class="col-md-6">
+        <table class="table table-hover">
+            <thead>
+                <tr>
+                    <th>Descripción</th>
+                    <th>Fecha de alta</th>
+                    <th>Cantidad</th>
+                    <th>Precio</th>
+                    <th>Unidad de medida</th>
+                    <th>Accion</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var articulo in articulos)
+                {
+                    <tr>
+                        <td>@articulo.Descripcion</td>
+                        <td>@articulo.FechaAlta</td>
+                        <td>@articulo.Cantidad</td>
+                        <td>@articulo.Precio</td>
+                        <td>@articulo.UdeMedida</td>
+                        <td>
+                            <a href="articulo/editar/@articulo.Id" class="btn btn-success">Editar</a>
+                            <a class="btn btn-danger" @onclick="async () => await Borrar(articulo)">Borrar</a>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+        <h5>Total: @Total().ToString("C2")</h5>
+    </div>
+</div>
+
+@code {
+    private List<Articulo> articulos = new List<Articulo>();
+    
+    protected override void OnInitialized()
+    {
+        articulos = articuloServicio.ObtenerTodo();
+    }
+    
+    private async Task Borrar(Articulo articulo) {
+        bool confirmed = await jsRuntime.InvokeAsync<bool>("confirm", "¿Seguro de realizar esta acción?");
+        if (confirmed)
+            if (articuloServicio.Borrar(articulo.Id))
+                articulos.Remove(articulo);
+    }
+    
+    private double Total()
+    {
+        return articuloServicio.Total();
+    }
+}

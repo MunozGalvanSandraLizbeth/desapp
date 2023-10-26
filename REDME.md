@@ -54,3 +54,6 @@
 
 ## Tarea 3
 - p26-crud-jugador
+
+## Examen Parcial 2
+- p27-segundo-examen-parcial
