@@ -1,0 +1,83 @@
+@page "/habitacion/agregar"
+@page "/habitacion/editar/{Id:int}"
+@inject HabitacionServicio habitacionServicio
+@inject NavigationManager NavigationManager
+
+<h3>@Titulo</h3>
+
+<div class="row">
+    <div class="col-md-6">
+        <EditForm Model="@cur" OnValidSubmit="Grabar">
+            <DataAnnotationsValidator/>
+
+            <div class="form-group">
+                <label for="NoHab">Número de habitación</label>
+                <InputNumber typeclass="form-control" @bind-Value="cur.NoHab"/>
+                <ValidationMessage For="@(()=>cur.NoHab)"/>
+            </div>
+
+            <div class="form-group">
+                <label for="Tipo">Tipo</label>
+                <label for="Tipo" class="control-label"></label>
+                <select @bind="@cur.Tipo" class="form-control">
+                    <option value="">-Selecciona tipo de habitación</option>
+                    <option value="Individual">Individual</option>
+                    <option value="Doble">Doble</option>
+                    <option value="Triple">Triple</option>
+                    <option value="Ejecutivo">Ejecutivo</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="Piso">Piso</label>
+                <InputNumber typeclass="form-control" @bind-Value="cur.Piso"/>
+                <ValidationMessage For="@(()=>cur.Piso)"/>
+            </div>
+
+            <div class="form-group">
+                <label for="Costo">Costo</label>
+                <InputNumber typeclass="form-control" @bind-Value="cur.Costo"/>
+                <ValidationMessage For="@(()=>cur.Costo)"/>
+            </div>
+
+            <div>
+                @mensaje
+            </div>
+
+            <div class="my-2">
+                <input type="submit" class="btn btn-primary" value="Grabar"/>
+                <input type="button" class="btn btn-primary" @onclick="@Cancel" value="Cancelar"/>
+            </div>
+        </EditForm>
+    </div>
+</div>
+
+@code {
+    [Parameter]
+    public int Id {get; set;}
+
+    Habitacion cur = new Habitacion();
+    private string mensaje = string.Empty;
+    private string Titulo="Agregar Habitacion";
+    private bool deshabilitar = false;
+
+    protected void Grabar() {
+    if(habitacionServicio.AgregarActualizar(cur)) {
+        mensaje = "Agregado exitosamente ";
+    } else mensaje = "No pudo agregarse";
+        NavigationManager.NavigateTo("habitaciones",forceLoad:true);
+    }
+
+    void Cancel() {
+    NavigationManager.NavigateTo("habitaciones",forceLoad:true);
+    }
+
+    protected override void OnInitialized() {
+        if (Id > 0) {
+            Titulo = "Actualizar Habitacion";
+            cur = habitacionServicio.EcontrarPorId(Id);
+            deshabilitar = true;
+        }
+        base.OnInitialized();
+    }
+}

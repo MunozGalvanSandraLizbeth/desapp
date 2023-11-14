@@ -1,0 +1,89 @@
+@page "/cliente/agregar"
+@page "/cliente/editar/{Id:int}"
+@inject ClienteServicio clienteServicio
+@inject NavigationManager NavigationManager
+
+<h3>@Titulo</h3>
+
+<div class="row">
+    <div class="col-md-6">
+        <EditForm Model="@cli" OnValidSubmit="Grabar">
+            <DataAnnotationsValidator/>
+            <div class="form-group">
+                <label for="Nombre">Nombre</label>
+                <InputText class="form-control" @bind-Value="cli.Nombre"/>
+                <ValidationMessage For="@(()=>cli.Nombre)"/>
+            </div>
+
+            <div class="form-group">
+                <label for="Apeido">Apellido</label>
+                <InputText class="form-control" @bind-Value="cli.Apeido"/>
+                <ValidationMessage For="@(()=>cli.Apeido)"/>
+            </div>
+
+            <div class="form-group">
+                <label for="Genero">Genero</label>
+                <label for="Genero" class="control-label"></label>
+                <select @bind="@cli.Genero" class="form-control">
+                    <option value="">-Selecciona Genero</option>
+                    <option value="H">Hombre</option>
+                    <option value="M">Mujer</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="FechaCumple">Fecha de cumpleaños</label>
+                <InputDate class="form-control" @bind-Value="cli.FechaCumple"/>
+                <ValidationMessage For="@(()=>cli.FechaCumple)"/>
+            </div>
+
+            <div class="form-group">
+                <label for="Correo">Correo</label>
+                <InputText class="form-control" @bind-Value="cli.Correo"/>
+                <ValidationMessage For="@(()=>cli.Correo)"/>
+            </div>
+
+            <div class="form-group">
+                <label for="Telefono">Teléfono</label>
+                <InputText class="form-control" @bind-Value="cli.Telefono"/>
+                <ValidationMessage For="@(()=>cli.Telefono)"/>
+            </div>
+
+            <div>
+                @mensaje
+            </div>
+
+            <div class="my-2">
+                <input type="submit" class="btn btn-primary" value="Grabar"/>
+                <input type="button" class="btn btn-primary" @onclick="@Cancel" value="Cancelar"/>
+            </div>
+        </EditForm>
+    </div>
+</div>
+
+@code {
+    [Parameter]
+    public int Id {get; set;}
+
+    Cliente cli = new Cliente();
+    private string mensaje = string.Empty;
+    private string Titulo="Agregar Cliente";
+
+    protected void Grabar() {
+        if(clienteServicio.AgregarActualizar(cli)) {
+        mensaje = "Agregado exitosamente ";
+    } else mensaje = "No pudo agregarse";
+        NavigationManager.NavigateTo("clientes",forceLoad:true);
+    }
+
+    void Cancel() {
+        NavigationManager.NavigateTo("clientes",forceLoad:true);
+    }
+
+    protected override void OnInitialized() {
+        if (Id > 0) {
+            Titulo = "Actualizar Cliente";
+            cli = clienteServicio.EcontrarPorId(Id);
+        }
+    }
+}

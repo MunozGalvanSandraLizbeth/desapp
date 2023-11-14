@@ -1,0 +1,112 @@
+@page "/habitaciones"
+@inject HabitacionServicio habitacionServicio
+@inject IJSRuntime jsRuntime
+
+<h3>Habitaciones</h3>
+
+<NavLink class="nav-link" href="habitacion/agregar">
+    <span class="oi oi-plus" aria-hidden="true">Agregar habitación</span>
+</NavLink>
+<label>Buscar:</label>
+<input type="text" @oninput="@( (h) => Filtro(h) )">
+
+<div class="row">
+    <div class="col-md-10">
+        <table class="table table-hover">
+            <thead>
+            <tr>
+                <th>No. Habitación</th>
+                <th>Tipo</th>
+                <th>Piso</th>
+                <th>Costo</th>
+                <th>Nombre - Días - Costo Total</th>
+                <th>Acción</th>
+            </tr>
+            </thead>
+            <tbody>
+                @foreach (var habitacion in habitaciones)
+                {
+                    <tr>
+                        <td>@habitacion.NoHab</td>
+                        <td>@habitacion.Tipo</td>
+                        <td>@habitacion.Piso</td>
+                        <td>@habitacion.Costo</td>
+                        <td>
+                            @if (habitacion.Reservas.Count == 0)
+                            {
+                                <p>-sin reservaciones-</p>
+                            }
+                            else
+                            {
+                                @foreach (var reserva in habitacion.Reservas)
+                                {
+                                    <p>@string.Format("{0} - {1} - ${2:N2}", reserva.Cliente.NombreCompleto, reserva.DiasReserva, (reserva.DiasReserva * habitacion.Costo))</p>
+                                }
+                            } 
+                        </td>
+
+                        <td>
+                            <a href="habitacion/editar/@habitacion.Id" class="btn btn-success">Editar</a>
+                            <a class="btn btn-danger" @onclick="async () => await Borrar(habitacion)">Borrar</a>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+        <h5>Individual: @TotIndividual()</h5>
+        <h5>Doble: @TotDoble()</h5>
+        <h5>Triple: @TotTriple()</h5>
+        <h5>Ejecutivo: @TotEjecutivo()</h5>
+        <h5>Total: @TotHabitaciones()</h5>
+    </div>
+</div>
+
+@code {
+    private List<Habitacion> habitaciones = new List<Habitacion>();
+
+    protected override void OnInitialized()
+    {
+        habitaciones = habitacionServicio.ObtenerTodo("");
+    }
+
+    private async Task Borrar(Habitacion habitacion)
+    {
+        bool confirmed = await jsRuntime.InvokeAsync<bool>("confirmar", "¿Seguro de eliminar?");
+        if (confirmed)
+        {
+            if (habitacionServicio.Borrar(habitacion.Id))
+                habitaciones.Remove(habitacion);
+        }
+    }
+
+    protected void Filtro(ChangeEventArgs e)
+    {
+        string cadenabuscar = e.Value.ToString();
+        habitaciones = habitacionServicio.ObtenerTodo(cadenabuscar);
+    }
+
+    public double TotIndividual()
+    {
+        return habitaciones.Count(h => h.Tipo == "Individual");
+    }
+
+    public double TotDoble()
+    {
+        return habitaciones.Count(h => h.Tipo == "Doble");
+    }
+
+    public double TotTriple()
+    {
+        return habitaciones.Count(h => h.Tipo == "Triple");
+    }
+
+    public double TotEjecutivo()
+    {
+        return habitaciones.Count(h => h.Tipo == "Ejecutivo");
+    }
+
+    public double TotHabitaciones()
+    {
+        return habitaciones.Count();
+    }
+}

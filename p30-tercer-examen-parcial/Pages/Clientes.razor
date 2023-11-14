@@ -1,0 +1,92 @@
+@page "/clientes"
+@inject ClienteServicio clienteServicio
+@inject IJSRuntime jsRuntime
+
+<h3>Clientes</h3>
+
+<NavLink class="nav-link" href="cliente/agregar">
+    <span class="oi oi-plus" aria-hidden="true">Agregar cliente</span>
+</NavLink>
+
+<label>Buscar cliente:</label>
+<input type="text" @oninput="@( (e) => Filtro(e) )">
+
+<div class="row">
+    <div class="col-md-10">
+        <table class="table table-hover">
+            <thead>
+                <tr>
+                    <th>Nombre</th>
+                    <th>Apellido</th>
+                    <th>Género</th>
+                    <th>Fecha Cumpleaños</th>
+                    <th>Correo</th>
+                    <th>Teléfono</th>
+                    <th>Nombre Completo</th>
+                    <th>Edad</th>
+                    <th>Acción</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var cliente in clientes) {
+                <tr>
+                    <td>@cliente.Nombre</td>
+                    <td>@cliente.Apeido</td>
+                    <td>@cliente.Genero</td>
+                    <td>@cliente.FechaCumple.ToString("dd-MM-yyyy")</td>
+                    <td>@cliente.Correo</td>
+                    <td>@cliente.Telefono</td>
+                    <td>@cliente.NombreCompleto</td>
+                    <td>@(DateTime.Now.Year - cliente.FechaCumple.Year)</td>
+                    <td>
+                        <a href="cliente/editar/@cliente.Id" class="btn btn-success">Editar</a>
+                        <a class="btn btn-danger" @onclick="async ()=> await Borrar(cliente)">Borrar</a>
+                    </td>
+                </tr>
+                }
+            </tbody>
+
+        </table>
+        <h5>Clientes: @TotClientes()</h5>
+        <h5>Promedio de edad: @PromEdad()</h5>
+        <h5>Mujeres: @TotMujeres()</h5>
+        <h5>Hombres: @TotHombres()</h5>
+    </div>
+</div>
+
+@code {
+    private List<Cliente> clientes = new List<Cliente>();
+    protected override void OnInitialized() {
+        clientes = clienteServicio.ObtenerTodo("");
+    }
+
+    private async Task Borrar(Cliente cliente) {
+        bool confirmed = await jsRuntime.InvokeAsync<bool>("confirmar", "¿Seguro de eliminar?");
+        if (confirmed) {
+            if (clienteServicio.Borrar(cliente.Id))
+                clientes.Remove(cliente);
+        }
+    }
+
+    protected void Filtro(ChangeEventArgs e) {
+        string cadenabuscar = e.Value.ToString();
+        clientes = clienteServicio.ObtenerTodo(cadenabuscar);
+    }
+
+    private int TotClientes() {
+        return clientes.Count();
+    }
+
+    private int PromEdad() {
+        var edades = clientes.Select(cliente => DateTime.Now.Year - cliente.FechaCumple.Year);
+        return (int)Math.Round(edades.Average());
+    }
+
+    private double TotMujeres() {
+        return clientes.Count(cliente => cliente.Genero == 'M');
+    }
+
+    private double TotHombres() {
+        return clientes.Count(cliente => cliente.Genero == 'H');
+    }
+}
